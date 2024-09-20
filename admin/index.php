@@ -14,9 +14,9 @@
         include "connect.php";
 
         //đếm số lượng người dùng
-        //$sql_users = "SELECT COUNT(id) AS count_users from users";
-        //$result_users = $conn->query($sql_users);
-        //$count_users = $result_users->fetch_assoc()['count_users'];
+        $sql_users = "SELECT COUNT(id) AS count_users from users";
+        $result_users = $conn->query($sql_users);
+        $count_users = $result_users->fetch_assoc()['count_users'];
 
         //đếm số lượng thể loại
         $sql_theloai = "SELECT COUNT(ma_tloai) AS count_theloai from theloai";
@@ -77,7 +77,7 @@
                         </h5>
 
                         <h5 class="h1 text-center">
-                            3
+                        <?php echo $count_users; ?>
                         </h5>
                     </div>
                 </div>
