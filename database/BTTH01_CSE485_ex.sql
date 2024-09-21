@@ -163,11 +163,13 @@ DELIMITER ;
 /* 4l. Bổ sung thêm bảng Users để lưu thông tin Tài khoản đăng nhập và sử dụng cho chức năng
 Đăng nhập/Quản trị trang web. */
 
-CREATE TABLE Users (
-    user_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    role ENUM('admin', 'user') DEFAULT 'user',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- tạo bảng users
+CREATE TABLE users (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usersname VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL
 );
+
+
+-- dữ liệu users
+INSERT INTO users (usersname, password) VALUES ('admin', '123'), ('user1', '123'), ('user2', '123');

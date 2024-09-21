@@ -30,17 +30,6 @@ CREATE TABLE baiviet (
     CONSTRAINT fk_tgia FOREIGN KEY (ma_tgia) REFERENCES tacgia(ma_tgia)
 );
 
---tạo bảng users
-CREATE TABLE users (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    users VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL
-);
-
-
---dữ liệu users
-INSERT INTO users (users, password) VALUES ('admin', '123'), ('user1', '123'), ('user2', '123');
-
 -- Dữ liệu theloai-data
 INSERT INTO theloai VALUE (1, "Nhạc trẻ");
 INSERT INTO theloai VALUE (2, "Nhạc trữ tình");
