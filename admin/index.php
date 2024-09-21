@@ -10,6 +10,30 @@
     <link rel="stylesheet" href="css/style_login.css">
 </head>
 <body>
+    <?php
+        include "connect.php";
+
+        //đếm số lượng người dùng
+        $sql_users = "SELECT COUNT(id) AS count_users from users";
+        $result_users = $conn->query($sql_users);
+        $count_users = $result_users->fetch_assoc()['count_users'];
+
+        //đếm số lượng thể loại
+        $sql_theloai = "SELECT COUNT(ma_tloai) AS count_theloai from theloai";
+        $result_theloai = $conn->query($sql_theloai);
+        $count_theloai = $result_theloai->fetch_assoc()['count_theloai'];
+
+        //đếm số lượng tác giả
+        $sql_tacgia = "SELECT COUNT(ma_tgia) AS count_tacgia from tacgia";
+        $result_tacgia = $conn->query($sql_tacgia);
+        $count_tacgia = $result_tacgia->fetch_assoc()['count_tacgia'];
+
+        //đếm số lượng bài viết
+        $sql_baiviet = "SELECT COUNt(ma_bviet) AS count_baiviet from baiviet";
+        $result_baiviet = $conn->query($sql_baiviet);
+        $count_baiviet = $result_baiviet->fetch_assoc()['count_baiviet'];
+    ?>
+
     <header>
         <nav class="navbar navbar-expand-lg bg-body-tertiary shadow p-3 bg-white rounded">
             <div class="container-fluid">
@@ -53,7 +77,7 @@
                         </h5>
 
                         <h5 class="h1 text-center">
-                            110
+                        <?php echo $count_users; ?>
                         </h5>
                     </div>
                 </div>
@@ -67,7 +91,7 @@
                         </h5>
 
                         <h5 class="h1 text-center">
-                            10
+                            <?php echo $count_theloai; ?>
                         </h5>
                     </div>
                 </div>
@@ -81,7 +105,7 @@
                         </h5>
 
                         <h5 class="h1 text-center">
-                            20
+                            <?php echo $count_tacgia; ?>
                         </h5>
                     </div>
                 </div>
@@ -95,7 +119,7 @@
                         </h5>
 
                         <h5 class="h1 text-center">
-                            110
+                            <?php echo $count_baiviet; ?>
                         </h5>
                     </div>
                 </div>
