@@ -18,72 +18,71 @@ include "connect.php";
 $this_id = $_GET['this_id'] ?? '';
 
 // Tạo câu lệnh SQL để lấy thông tin tác giả theo ID
-$sql = "SELECT * FROM baiviet WHERE ma_bviet = '$this_id'";
+$sql = "SELECT * FROM baiviet WHERE ma_bviet = ?";
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "i", $this_id);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$row = mysqli_fetch_assoc($result);
 
-// Thực thi câu lệnh SQL và lưu kết quả vào biến $query
-$query = mysqli_query($conn, $sql);
-
-// Lấy hàng đầu tiên từ kết quả truy vấn và lưu vào biến $row
-$row = mysqli_fetch_assoc($query);
+if (!$row) {
+    die("Bài viết không tồn tại");
+}
 
 if (isset($_POST['luulai'])) {
-    $tieude = mysqli_real_escape_string($conn, $_POST['tieude']);
-    $ten_bhat = mysqli_real_escape_string($conn, $_POST['ten_bhat']);
-    $ma_tloai = mysqli_real_escape_string($conn, $_POST['ma_tloai']);
-    $tomtat = mysqli_real_escape_string($conn, $_POST['tomtat']);
-    $noidung = mysqli_real_escape_string($conn, $_POST['noidung']);
-    $ma_tgia = mysqli_real_escape_string($conn, $_POST['ma_tgia']);
-    $ngayviet = mysqli_real_escape_string($conn, $_POST['ngayviet']);
-    $hinhanh = $row['hinhanh']; // Dùng hình ảnh hiện tại mặc định
+    $tieude = $_POST['tieude'];
+    $ten_bhat = $_POST['ten_bhat'];
+    $ma_tloai = $_POST['ma_tloai'];
+    $tomtat = $_POST['tomtat'];
+    $noidung = $_POST['noidung'];
+    $ma_tgia = $_POST['ma_tgia'];
+    $ngayviet = $_POST['ngayviet'];
 
-    // Kiểm tra nếu ảnh mới được chọn
+    $hinhanh = $row['hinhanh']; // Giữ nguyên hình ảnh cũ nếu không có ảnh mới
+
     if (isset($_FILES['hinhanh']) && $_FILES['hinhanh']['error'] === UPLOAD_ERR_OK) {
-        $image_name = $_FILES['hinhanh']['name'];
-        $image_tmp = $_FILES['hinhanh']['tmp_name'];
-        $image_ext = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
-        $valid_extensions = array("jpg", "jpeg", "png", "gif");
+        $target_dir = "uploads/";
+        $target_file = $target_dir . uniqid() . "_" . basename($_FILES["hinhanh"]["name"]);
+        $imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 
-        if (in_array($image_ext, $valid_extensions)) {
-            $upload_dir = 'uploads/';
-            $image_path = $upload_dir . basename($image_name);
+        // Kiểm tra định dạng và kích thước file
+        $allowed_types = ['jpg', 'jpeg', 'png', 'gif'];
+        $max_size = 500000; // 500KB
 
-            // Xóa hình ảnh cũ nếu có
-            if (file_exists($row['hinhanh'])) {
-                unlink($row['hinhanh']);
-            }
+        if (!in_array($imageFileType, $allowed_types) || $_FILES["hinhanh"]["size"] > $max_size) {
+            die("Chỉ chấp nhận các định dạng jpg, jpeg, png, gif. Kích thước file tối đa 500KB");
+        }
 
-            if (move_uploaded_file($image_tmp, $image_path)) {
-                $hinhanh = $image_path; // Cập nhật đường dẫn hình ảnh mới
-            } else {
-                echo "Lỗi tải ảnh lên!";
-            }
+        if (move_uploaded_file($_FILES["hinhanh"]["tmp_name"], $target_file)) {
+            $hinhanh = $target_file;
         } else {
-            echo "Chỉ chấp nhận các định dạng ảnh JPG, JPEG, PNG, GIF.";
+            die("Lỗi khi upload hình ảnh: " . $_FILES["hinhanh"]["error"]);
         }
     }
 
-    // Cập nhật thông tin bài viết bằng prepared statement
+    // Cập nhật thông tin bài viết vào cơ sở dữ liệu
     $sql = "UPDATE baiviet SET 
-    tieude = ?, 
-    ten_bhat = ?, 
-    ma_tloai = ?, 
-    tomtat = ?, 
-    noidung = ?, 
-    ma_tgia = ?, 
-    ngayviet = ?, 
-    hinhanh = ? 
-    WHERE ma_bviet='$this_id'";
-    $stmt = mysqli_prepare($conn, $sql);
-    mysqli_stmt_bind_param($stmt, "sssssssi", $tieude, $ten_bhat, $ma_tloai, $tomtat, $noidung, $ma_tgia, $ngayviet, $hinhanh);
-    mysqli_stmt_execute($stmt);
+        tieude = '$tieude', 
+        ten_bhat = '$ten_bhat', 
+        ma_tloai = '$ma_tloai', 
+        tomtat = '$tomtat', 
+        noidung = '$noidung', 
+        ma_tgia = '$ma_tgia', 
+        ngayviet = '$ngayviet', 
+        hinhanh = '$hinhanh' 
+        WHERE ma_bviet = '$this_id'";
 
-    if (mysqli_stmt_affected_rows($stmt) > 0) {
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!$stmt) {
+        die("Lỗi khi chuẩn bị câu lệnh: " . mysqli_error($conn));
+    }
+    if (!mysqli_stmt_execute($stmt)) {
+        die("Lỗi khi thực thi câu lệnh: " . mysqli_stmt_error($conn) . "<br>" . $sql);
+    }
+
     echo "Cập nhật bài viết thành công!";
     header('Location: article.php');
     exit();
-    } else {
-    echo "Lỗi khi cập nhật bài viết: " . mysqli_error($conn);
-    }
 }
 ?>
 
@@ -160,7 +159,7 @@ if (isset($_POST['luulai'])) {
                         </div>';
                         echo '<div class="input-group mt-3 mb-3">
                             <span class="input-group-text">Hình ảnh hiện tại</span>
-                            <img src="' . htmlspecialchars($row['hinhanh']) . '" alt="Hình tác giả" style="width: 100px; height: auto;">
+                            <img src="' . htmlspecialchars($row['hinhanh']) . '" alt="Hình bài viết" style="width: 100px; height: auto;">
                         </div>';
                         echo '<div class="input-group mt-3 mb-3">
                             <span class="input-group-text">Chọn hình ảnh mới</span>
