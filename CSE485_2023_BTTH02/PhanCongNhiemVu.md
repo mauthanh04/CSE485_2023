@@ -5,4 +5,4 @@
 5. các mục chi tiết trong trang đăng nhập (cả nhóm làm)
 
 6. Phần cấu trúc file của bọn em không đúng yêu cầu. Chúng em tạo thêm admin nhưng khi đẩy file con vào xong chỉ lại đường dẫn từ admin thì lại lỗi ạ. Mong thầy bỏ qua cho bọn em về cấu trúc file không được đẹp ạ. 
-                                                                                             ---THẦY HIẾU ĐẸP ZAI---
+                                                                                             ----THẦY HIẾU ĐẸP ZAI----
